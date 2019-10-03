@@ -2,13 +2,13 @@
 
 import sys
 
-
 new_f = open(sys.argv[1].replace('.gcode','')+"_new.gcode","w+")
 old_ff = open(sys.argv[1], 'rb')
 old_f = open(sys.argv[1], 'rb')
 new_X = float(sys.argv[2])
 new_Y = float(sys.argv[3])
 rotate = float(sys.argv[4])
+mirror = sys.argv[5]
 
 max_x = 0
 max_y = 0
@@ -35,27 +35,73 @@ old_ff.close()
 def gcode_calc(value, axis):
     val = float(value.replace(axis,''))
     if axis == 'X':
-        if rotate == 90:
-            axis = 'Y'
-            new_val = - val + max_x - min_x + new_Y
-        elif rotate == 180:
-            new_val = - val + max_x - min_x + new_X
-        elif rotate == 270 or rotate == -90:
-            axis = 'Y'
-            new_val = val + new_Y
-        elif rotate == 0:
-            new_val = val + new_X
+        if mirror == 'X':
+            if rotate == 90:
+                axis = 'Y'
+                new_val = val + new_Y
+            elif rotate == 180:
+                new_val = val + new_X
+            elif rotate == 270 or rotate == -90:
+                axis = 'Y'
+                new_val = - val + max_x - min_x + new_Y
+            elif rotate == 0:
+                new_val = - val + max_x - min_x + new_X
+        elif mirror == 'Y':
+            if rotate == 90:
+                axis = 'Y'
+                new_val = - val + max_x - min_x + new_Y
+            elif rotate == 180:
+                new_val = - val + max_x - min_x + new_X
+            elif rotate == 270 or rotate == -90:
+                axis = 'Y'
+                new_val = val + new_Y
+            elif rotate == 0:
+                new_val = val + new_X
+        else:
+            if rotate == 90:
+                axis = 'Y'
+                new_val = - val + max_x - min_x + new_Y
+            elif rotate == 180:
+                new_val = - val + max_x - min_x + new_X
+            elif rotate == 270 or rotate == -90:
+                axis = 'Y'
+                new_val = val + new_Y
+            elif rotate == 0:
+                new_val = val + new_X
     else:
-        if rotate == 90:
-            axis = 'X'
-            new_val = val + new_X
-        elif rotate == 180:
-            new_val = - val + max_y - min_y + new_Y
-        elif rotate == 270 or rotate == -90:
-            axis = 'X'
-            new_val = - val + max_y - min_y + new_X
-        elif rotate == 0:
-            new_val = val + new_Y
+        if mirror == 'X':
+            if rotate == 90:
+                axis = 'X'
+                new_val = val + new_X
+            elif rotate == 180:
+                new_val = - val + max_y - min_y + new_Y
+            elif rotate == 270 or rotate == -90:
+                axis = 'X'
+                new_val = - val + max_y - min_y + new_X
+            elif rotate == 0:
+                new_val = val + new_Y
+        elif mirror == 'Y':
+            if rotate == 90:
+                axis = 'X'
+                new_val = - val + max_y - min_y + new_X
+            elif rotate == 180:
+                new_val = val + new_Y
+            elif rotate == 270 or rotate == -90:
+                axis = 'X'
+                new_val = val + new_X
+            elif rotate == 0:
+                new_val = - val + new_Y + max_y - min_y
+        else:
+            if rotate == 90:
+                axis = 'X'
+                new_val = val + new_X
+            elif rotate == 180:
+                new_val = - val + max_y - min_y + new_Y
+            elif rotate == 270 or rotate == -90:
+                axis = 'X'
+                new_val = - val + max_y - min_y + new_X
+            elif rotate == 0:
+                new_val = val + new_Y
 
     return '{ax}{c}'.format(ax=axis, c=new_val)
 
@@ -69,7 +115,6 @@ for a in old_f:
         else:
             new_row.append(b)
     new_f.write(' '.join(new_row)+"\n")
-
 
 old_f.close()
 new_f.close()
