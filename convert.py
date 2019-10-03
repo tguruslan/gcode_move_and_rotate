@@ -18,43 +18,43 @@ min_y = 0
 for i in old_ff:
     for b in i.decode("utf-8").split():
         if b.find('X') != -1:
-            if float(b.replace('X','')) > max_x:
-                max_x = float(b.replace('X',''))
-            if float(b.replace('X','')) < min_x:
-                min_x = float(b.replace('X',''))
+            x = float(b.replace('X',''))
+            if x > max_x:
+                max_x = x
+            if x < min_x:
+                min_x = x
         if b.find('Y') != -1:
-            if float(b.replace('Y','')) > max_x:
-                max_y = float(b.replace('Y',''))
-            if float(b.replace('Y','')) < min_x:
-                min_x = float(b.replace('Y',''))
+            y = float(b.replace('Y',''))
+            if y > max_y:
+                max_y = y
+            if y < min_y:
+                min_y = y
 
 old_ff.close()
 
 def gcode_calc(value, axis):
     val = float(value.replace(axis,''))
-    if rotate == 90:
-        if axis == 'X':
+    if axis == 'X':
+        if rotate == 90:
             axis = 'Y'
             new_val = - val + max_x - min_x + new_Y
-        else:
-            axis = 'X'
-            new_val = val + new_X
-    elif rotate == 180:
-        if axis == 'X':
+        elif rotate == 180:
             new_val = - val + max_x - min_x + new_X
-        else:
-            new_val = - val + max_y - min_y + new_Y
-    elif rotate == 270 or rotate == -90:
-        if axis == 'X':
+        elif rotate == 270 or rotate == -90:
             axis = 'Y'
             new_val = val + new_Y
-        else:
+        elif rotate == 0:
+            new_val = val + new_X
+    else:
+        if rotate == 90:
+            axis = 'X'
+            new_val = val + new_X
+        elif rotate == 180:
+            new_val = - val + max_y - min_y + new_Y
+        elif rotate == 270 or rotate == -90:
             axis = 'X'
             new_val = - val + max_y - min_y + new_X
-    elif rotate == 0:
-        if axis == 'X':
-            new_val = val + new_X
-        else:
+        elif rotate == 0:
             new_val = val + new_Y
 
     return '{ax}{c}'.format(ax=axis, c=new_val)
