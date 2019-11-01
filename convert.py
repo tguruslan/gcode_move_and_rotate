@@ -1,11 +1,32 @@
 #!/usr/bin/env python
 
-import sys
+import sys, argparse
 
 # ==============================================================================
 
 
-with open(sys.argv[1]) as file:
+arg = argparse.ArgumentParser()
+arg.add_argument ('-f', '--file', required=True, help='ім`я вхідного файлу (обов`язковий)')
+arg.add_argument ('-t', '--save_to', default=0, help='і`мя файлу в для збереження (якщо не вказати, то буде такеж як оригінальне але з приставкою _new)')
+arg.add_argument ('-x', '--move_x', default=0, help='зміщення по Х в мм')
+arg.add_argument ('-y', '--move_y', default=0, help='зміщення по У в мм')
+arg.add_argument ('-r', '--rotate', default=0, help='поворот на кут (кратне 90)')
+arg.add_argument ('-m', '--mirror', default=0, help='відзеркалення осі (назва осі)')
+arg.add_argument ('-s', '--scale', default=0, help='маштаб у відсотках, підтримується відємний')
+arg.parse_args()
+
+input_file = arg.parse_args().file
+save_to = arg.parse_args().save_to
+move_x = int(arg.parse_args().move_x)
+move_y = int(arg.parse_args().move_y)
+rotate = int(arg.parse_args().rotate)
+mirror = arg.parse_args().mirror
+scale = int(arg.parse_args().scale)
+
+# ==============================================================================
+
+
+with open(input_file) as file:
     data = file.read()
 
 # ==============================================================================
@@ -41,17 +62,17 @@ def rotate_data(i_data):
         for b in row.split():
             if b.find('X') != -1:
                 n_val = -float(b.replace('X', ''))+g_size[0]-g_size[2]
-                b = '{axis}{val}'.format(axis='Y', val=n_val)
-            if b.find('Y') != -1:
+                n_b = '{axis}{val}'.format(axis='Y', val=n_val)
+            elif b.find('Y') != -1:
                 val = b.replace('Y', '')
-                b = '{axis}{val}'.format(axis='X', val=float(val))
-            n_row.append(b)
-        n_data += ' '.join(n_row)+"\n"
+                n_b = '{axis}{val}'.format(axis='X', val=float(val))
+            else:
+                n_b = b
+            n_row.append(n_b)
+        n_data += "{n_r}\n".format(n_r=' '.join(n_row))
 
     return n_data
 
-
-rotate = float(sys.argv[4])
 
 if rotate != 0:
     if rotate == -90:
@@ -71,18 +92,18 @@ def morror_xy(i_data, xy):
             if b.find('X') != -1:
                 if xy == 'X':
                     n_val = -float(b.replace('X', ''))+g_size[0]-g_size[2]
-                    b = 'X{val}'.format(val=n_val)
+                    n_b = 'X{val}'.format(val=n_val)
             if b.find('Y') != -1:
                 if xy == 'Y':
                     n_val = -float(b.replace('Y', ''))+g_size[1]-g_size[3]
-                    b = 'Y{val}'.format(val=n_val)
-            n_row.append(b)
-        n_data += ' '.join(n_row)+"\n"
+                    n_b = 'Y{val}'.format(val=n_val)
+            else:
+                n_b = b
+            n_row.append(n_b)
+        n_data += "{n_r}\n".format(n_r=' '.join(n_row))
 
     return n_data
 
-
-mirror = sys.argv[5]
 
 if mirror != 0:
     g_size = sizes(data)
@@ -91,27 +112,29 @@ if mirror != 0:
 # ==============================================================================
 
 
-def scale(i_data, rate):
-    rate = float(int(rate) / 100)
+def scale_code(i_data, rate):
+    rate = float(rate / 100)
     n_data = ''
     for row in i_data.split('\n'):
         n_row = []
         for b in row.split():
             if b.find('X') != -1:
                 x = float(b.replace('X', ''))
-                b = 'X{n_x}'.format(n_x=((x - g_size[2]) * rate + x))
+                n_b = 'X{n_x}'.format(n_x=((x - g_size[2]) * rate + x))
             if b.find('Y') != -1:
                 y = float(b.replace('Y', ''))
-                b = 'Y{n_y}'.format(n_y=((y - g_size[3]) * rate + y))
-            n_row.append(b)
-        n_data += ' '.join(n_row)+"\n"
+                n_b = 'Y{n_y}'.format(n_y=((y - g_size[3]) * rate + y))
+            else:
+                n_b = b
+            n_row.append(n_b)
+        n_data += "{n_r}\n".format(n_r=' '.join(n_row))
     return n_data
 
 
 
-if sys.argv[6] != 0:
+if scale != 0:
     g_size = sizes(data)
-    data = scale(data, sys.argv[6])
+    data = scale_code(data, scale)
 
 # ==============================================================================
 
@@ -122,21 +145,22 @@ def move_xy(i_data, x, y):
         n_row = []
         for b in row.split():
             if b.find('X') != -1:
-                b = 'X{n_x}'.format(n_x=(float(b.replace('X', ''))+x))
+                n_b = 'X{n_x}'.format(n_x=(float(b.replace('X', ''))+x))
             if b.find('Y') != -1:
-                b = 'Y{n_y}'.format(n_y=(float(b.replace('Y', ''))+y))
-            n_row.append(b)
-        n_data += ' '.join(n_row)+"\n"
+                n_b = 'Y{n_y}'.format(n_y=(float(b.replace('Y', ''))+y))
+            else:
+                n_b = b
+            n_row.append(n_b)
+        n_data += "{n_r}\n".format(n_r=' '.join(n_row))
     return n_data
 
-
-n_X = float(sys.argv[2])
-n_Y = float(sys.argv[3])
-
-if n_X != 0 or n_Y != 0:
-    data = move_xy(data, n_X, n_Y)
+if move_x != 0 or move_y != 0:
+    data = move_xy(data, move_x, move_y)
 
 # ==============================================================================
 
-with open(sys.argv[1].replace('.gcode', '')+"_new.gcode", 'w') as file:
+if save_to == 0:
+    save_to = '{name}_new.gcode'.format(name=input_file.replace('.gcode', ''))
+
+with open(save_to, 'w') as file:
     file.write(data)
