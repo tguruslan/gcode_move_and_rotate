@@ -91,6 +91,31 @@ if mirror != 0:
 # ==============================================================================
 
 
+def scale(i_data, rate):
+    rate = float(int(rate) / 100)
+    n_data = ''
+    for row in i_data.split('\n'):
+        n_row = []
+        for b in row.split():
+            if b.find('X') != -1:
+                x = float(b.replace('X', ''))
+                b = 'X{n_x}'.format(n_x=((x - g_size[2]) * rate + x))
+            if b.find('Y') != -1:
+                y = float(b.replace('Y', ''))
+                b = 'Y{n_y}'.format(n_y=((y - g_size[3]) * rate + y))
+            n_row.append(b)
+        n_data += ' '.join(n_row)+"\n"
+    return n_data
+
+
+
+if sys.argv[6] != 0:
+    g_size = sizes(data)
+    data = scale(data, sys.argv[6])
+
+# ==============================================================================
+
+
 def move_xy(i_data, x, y):
     n_data = ''
     for row in i_data.split('\n'):
