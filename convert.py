@@ -7,7 +7,7 @@ import sys, argparse
 
 arg = argparse.ArgumentParser()
 arg.add_argument ('-f', '--file', required=True, help='ім`я вхідного файлу (обов`язковий)')
-arg.add_argument ('-t', '--save_to', default=0, help='і`мя файлу в для збереження (якщо не вказати, то буде такеж як оригінальне але з приставкою _new)')
+arg.add_argument ('-t', '--save_to', default=0, help='ім`я файлу в для збереження (якщо не вказати, то буде такеж як оригінальне але з приставкою _new)')
 arg.add_argument ('-x', '--move_x', default=0, help='зміщення по Х в мм')
 arg.add_argument ('-y', '--move_y', default=0, help='зміщення по У в мм')
 arg.add_argument ('-r', '--rotate', default=0, help='поворот на кут (кратне 90)')
