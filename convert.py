@@ -87,7 +87,7 @@ if rotate != 0:
 # ==============================================================================
 
 
-def morror_xy(i_data, xy):
+def mirror_xy(i_data, xy):
     n_data = ''
     for row in i_data.split('\n'):
         n_row = []
@@ -110,7 +110,7 @@ def morror_xy(i_data, xy):
 
 if mirror != 0:
     g_size = sizes(data)
-    data = morror_xy(data, mirror)
+    data = mirror_xy(data, mirror)
 
 # ==============================================================================
 
@@ -132,7 +132,6 @@ def scale_code(i_data, rate):
             n_row.append(n_b)
         n_data += "{n_r}\n".format(n_r=' '.join(n_row))
     return n_data
-
 
 
 if scale != 0:
@@ -161,6 +160,7 @@ if move_x != 0 or move_y != 0:
     data = move_xy(data, move_x, move_y)
 
 # ==============================================================================
+
 
 def combine_gcode(i_data, x, y, offset):
     out_data = ""
